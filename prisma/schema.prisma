@@ -1,0 +1,174 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CURSO_CATEGORIA {
+  Idiomas
+  Finanzas
+  Alfabetización_de_Adultos
+}
+
+enum CURSO_NIVEL {
+  Principiante
+  Intermedio
+  Avanzado
+}
+
+model Rol {
+  id          Int              @id @default(autoincrement())
+  nombre      String           @unique
+  descripcion String?
+  usuarios    Usuario[]
+  permisos    RolesPermisos[]
+}
+
+model Permiso {
+  id          Int              @id @default(autoincrement())
+  nombre      String           @unique
+  descripcion String?
+  roles       RolesPermisos[]
+}
+
+model RolesPermisos {
+  id_rol     Int
+  id_permiso Int
+  rol        Rol     @relation(fields: [id_rol], references: [id], onDelete: Cascade)
+  permiso    Permiso @relation(fields: [id_permiso], references: [id], onDelete: Cascade)
+
+  @@id([id_rol, id_permiso])
+}
+
+model Usuario {
+  id               Int                  @id @default(autoincrement())
+  nombre_completo  String
+  email            String               @unique
+  contrasena_hash  String
+  id_rol           Int
+  fecha_creacion   DateTime             @default(now())
+  rol              Rol                  @relation(fields: [id_rol], references: [id], onDelete: Restrict)
+  cursos           Curso[]              @relation("InstructorCursos")
+  progreso         ProgresoUsuario[]
+  notificaciones   Notificacion[]
+  resenas          Resena[]
+  certificados     Certificado[]
+  resultados       ResultadosCuestionario[]
+}
+
+model Curso {
+  id                Int                  @id @default(autoincrement())
+  titulo            String
+  descripcion       String?
+  categoria         CURSO_CATEGORIA
+  nivel             CURSO_NIVEL
+  id_instructor     Int?
+  publicado         Boolean              @default(false)
+  url_imagen_portada String?
+  duracion_estimada String?
+  es_destacado      Boolean              @default(false)
+  instructor        Usuario?             @relation("InstructorCursos", fields: [id_instructor], references: [id], onDelete: SetNull)
+  lecciones         Leccion[]
+  resenas           Resena[]
+  certificados      Certificado[]
+
+}
+
+model Leccion {
+  id        Int               @id @default(autoincrement())
+  id_curso  Int
+  titulo    String
+  contenido String?
+  orden     Int?
+  curso     Curso             @relation(fields: [id_curso], references: [id], onDelete: Cascade)
+  progreso  ProgresoUsuario[]
+  cuestionario Cuestionario?
+}
+
+model ProgresoUsuario {
+  id_usuario        Int
+  id_leccion        Int
+  completado        Boolean     @default(false)
+  fecha_completado  DateTime?
+  usuario           Usuario     @relation(fields: [id_usuario], references: [id], onDelete: Cascade)
+  leccion           Leccion     @relation(fields: [id_leccion], references: [id], onDelete: Cascade)
+
+  @@id([id_usuario, id_leccion])
+}
+
+model Notificacion {
+  id              Int       @id @default(autoincrement())
+  id_usuario      Int
+  mensaje         String
+  leido           Boolean   @default(false)
+  url_destino     String?
+  fecha_creacion  DateTime  @default(now())
+  usuario         Usuario   @relation(fields: [id_usuario], references: [id], onDelete: Cascade)
+}
+
+model Resena {
+  id              Int       @id @default(autoincrement())
+  id_curso        Int
+  id_usuario      Int
+  puntuacion      Int       @db.SmallInt
+  comentario      String?
+  fecha_creacion  DateTime  @default(now())
+  curso           Curso     @relation(fields: [id_curso], references: [id], onDelete: Cascade)
+  usuario         Usuario   @relation(fields: [id_usuario], references: [id], onDelete: Cascade)
+
+  @@unique([id_curso, id_usuario])
+}
+
+model Certificado {
+  id             Int       @id @default(autoincrement())
+  id_usuario     Int
+  id_curso       Int
+  fecha_emision  DateTime
+  codigo_unico   String    @unique
+  usuario        Usuario   @relation(fields: [id_usuario], references: [id], onDelete: Cascade)
+  curso          Curso     @relation(fields: [id_curso], references: [id], onDelete: Cascade)
+}
+
+model Cuestionario {
+  id         Int         @id @default(autoincrement())
+  id_leccion Int?        @unique
+  titulo     String
+  leccion    Leccion?    @relation(fields: [id_leccion], references: [id], onDelete: SetNull)
+  preguntas  Pregunta[]
+  resultados ResultadosCuestionario[]
+}
+
+model Pregunta {
+  id              Int        @id @default(autoincrement())
+  id_cuestionario Int
+  texto_pregunta  String
+  cuestionario    Cuestionario @relation(fields: [id_cuestionario], references: [id], onDelete: Cascade)
+  opciones        Opcion[]
+}
+
+model Opcion {
+  id           Int      @id @default(autoincrement())
+  id_pregunta  Int
+  texto_opcion String
+  es_correcta  Boolean
+  pregunta     Pregunta @relation(fields: [id_pregunta], references: [id], onDelete: Cascade)
+}
+
+model ResultadosCuestionario {
+  id              Int         @id @default(autoincrement())
+  id_usuario      Int
+  id_cuestionario Int
+  puntuacion      Float?
+  fecha_intento   DateTime    @default(now())
+  usuario         Usuario     @relation(fields: [id_usuario], references: [id], onDelete: Cascade)
+  cuestionario    Cuestionario @relation(fields: [id_cuestionario], references: [id], onDelete: Cascade)
+}
