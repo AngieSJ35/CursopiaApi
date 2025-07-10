@@ -1,28 +1,36 @@
 const express = require('express');
 const cors = require('cors');
 
-/* const authRoutes = require('./routes/auth.routes.js');
-const usuarioRoutes = require('./routes/usuarios.routes.js/index.js');
-const leccionRoutes = require('./routes/lecciones.routes.js/index.js');
-const evaluacionRoutes = require('./routes/evaluaciones.routes');
-const certificadoRoutes = require('./routes/certificados.routes');
-const notificacionRoutes = require('./routes/notificaciones.routes.js/index.js');
- */
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// 1) Configuración de CORS
+app.use(cors({
+  origin: 'http://localhost:5173',       // Cambia si tu front corre en otro puerto
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true                       // Si vas a usar cookies o auth basada en sesiones
+}));
+
+// 2) Parseo de JSON
 app.use(express.json());
 
+console.log("hola");
+
+// 3) Rutas de tu API
 app.use('/api/cursos', require('./routes/cursos.routes'));
-// Rutas por módulo
-/* app.use('/api/auth', authRoutes);
-app.use('/api/usuarios', usuarioRoutes);
-app.use('/api/lecciones', leccionRoutes);
-app.use('/api/evaluaciones', evaluacionRoutes);
-app.use('/api/certificados', certificadoRoutes);
-app.use('/api/notificaciones', notificacionRoutes);
- */
+
+
+// Si en el futuro usas más módulos, descomenta y ajusta estas líneas:
+console.log("¿Qué devuelve require('./routes/auth.routes.js')?", require('./routes/auth.routes.js'));
+app.use('/api/auth', require('./routes/auth.routes.js'));
+app.use('/api/usuarios',       require('./routes/usuarios.routes.js'));
+// app.use('/api/lecciones',      require('./routes/lecciones.routes.js'));
+// app.use('/api/evaluaciones',   require('./routes/evaluaciones.routes'));
+// app.use('/api/certificados',   require('./routes/certificados.routes'));
+// app.use('/api/notificaciones', require('./routes/notificaciones.routes.js'));
+
+
+// 4) Levantar el servidor
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
