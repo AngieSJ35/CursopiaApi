@@ -1,67 +1,47 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
 const router = express.Router();
-const prisma = new PrismaClient();
+const bcrypt = require('bcrypt');
+const prisma = require('../prisma/client.js');
 
-// GET /api/usuarios
-// Lista todos los usuarios (sin exponer password)
-router.get('/', async (req, res) => {
+// POST /api/usuarios
+// Crea un nuevo usuario
+router.post('/', async (req, res) => {
   try {
-    const users = await prisma.user.findMany({
-      select: { id: true, email: true, nombre: true, createdAt: true }
+    const { nombre_completo, email, contrasena } = req.body;
+
+    if (!nombre_completo || !email || !contrasena) {
+      return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    }
+
+    // Verificar si ya existe el correo
+    const existente = await prisma.usuario.findUnique({ where: { email } });
+    if (existente) {
+      return res.status(409).json({ error: 'El correo ya está en uso' });
+    }
+
+    // Encriptar la contraseña
+    const contrasena_hash = await bcrypt.hash(contrasena, 10);
+
+    // Crear el usuario (le damos el rol 1 por defecto)
+    const nuevoUsuario = await prisma.usuario.create({
+      data: {
+        nombre_completo,
+        email,
+        contrasena_hash,
+        id_rol: 1 // Asegúrate de tener un rol con ID 1 en la base de datos
+      },
+      select: {
+        id: true,
+        nombre_completo: true,
+        email: true,
+        fecha_creacion: true
+      }
     });
-    res.json(users);
+
+    res.status(201).json(nuevoUsuario);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al obtener usuarios' });
+    console.error('Error al crear usuario:', err);
+    res.status(500).json({ error: 'Error interno al registrar usuario' });
   }
 });
-
-// GET /api/usuarios/:id
-// Detalle de un usuario
-router.get('/:id', async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: { id: true, email: true, nombre: true, createdAt: true }
-    });
-    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
-    res.json(user);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al obtener usuario' });
-  }
-});
-
-// PUT /api/usuarios/:id
-// Actualiza nombre o email del usuario
-router.put('/:id', async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    const { email, nombre } = req.body;
-    const user = await prisma.user.update({
-      where: { id },
-      data: { email, nombre },
-      select: { id: true, email: true, nombre: true }
-    });
-    res.json(user);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al actualizar usuario' });
-  }
-});
-
-// DELETE /api/usuarios/:id
-router.delete('/:id', async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    await prisma.user.delete({ where: { id } });
-    res.json({ message: 'Usuario eliminado' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al eliminar usuario' });
-  }
-});
-
 module.exports = router;

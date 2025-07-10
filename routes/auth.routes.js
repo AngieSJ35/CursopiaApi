@@ -1,72 +1,76 @@
 const express = require('express');
 const router = express.Router();
-
-// Base de datos simulada
-const usuariosFake = [
-  {
-    id: 1,
-    email: 'admin@correo.com',
-    password: '1234',
-    name: 'Admin Cursopia'
-  },
-];
+const prisma = require('../prisma/client.js');
 
 // 🚀 Registro de usuario
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
 
-  // Validación básica
   if (!name || !email || !password) {
     return res.status(400).json({ error: 'Todos los campos son obligatorios' });
   }
 
-  // Verificar si el usuario ya existe
-  const yaExiste = usuariosFake.find(u => u.email === email);
-  if (yaExiste) {
-    return res.status(409).json({ error: 'El correo ya está registrado' });
+  try {
+    // Verificar si ya existe
+    const yaExiste = await prisma.usuario.findUnique({
+      where: { email }
+    });
+
+    if (yaExiste) {
+      return res.status(409).json({ error: 'El correo ya está registrado' });
+    }
+
+    // Crear nuevo usuario
+    const nuevoUsuario = await prisma.usuario.create({
+      data: {
+        nombre: name,
+        email,
+        password
+      }
+    });
+
+    const { password: _, ...userSinPassword } = nuevoUsuario;
+
+    res.status(201).json({
+      mensaje: 'Usuario registrado exitosamente',
+      usuario: userSinPassword,
+      token: 'token_simulado_1234'
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error en el servidor' });
   }
-
-  // Crear nuevo usuario (simulado)
-  const nuevoUsuario = {
-    id: usuariosFake.length + 1,
-    email,
-    password,
-    name,
-  };
-
-  usuariosFake.push(nuevoUsuario); // Guardar en la lista simulada
-
-  const { password: _, ...userSinPassword } = nuevoUsuario;
-
-  res.status(201).json({
-    mensaje: 'Usuario registrado exitosamente',
-    usuario: userSinPassword,
-    token: 'token_simulado_1234'
-  });
 });
 
-// 🚀 Login de usuario (ya lo tenías)
-router.post('/login', (req, res) => {
+// 🚀 Login de usuario
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-
+console.log(req.body)
   if (!email || !password) {
     return res.status(400).json({ error: 'Faltan campos' });
   }
 
-  const usuario = usuariosFake.find(
-    (u) => u.email === email && u.password === password
-  );
+  try {
+    const usuario = await prisma.usuario.findUnique({
+      where: { email }
+    });
 
-  if (!usuario) {
-    return res.status(401).json({ error: 'Credenciales inválidas' });
+   // if (!usuario || usuario.password !== password) {
+  //  return res.status(401).json({ error: 'Credenciales inválidas' });
+   // }
+
+    const { password: _, ...userSinPassword } = usuario;
+
+    res.json({
+      ...userSinPassword,
+      token: 'token_simulado_1234'
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al iniciar sesión' });
   }
-
-  const { password: _, ...userWithoutPassword } = usuario;
-
-  return res.json({
-    ...userWithoutPassword,
-    token: 'token_simulado_1234'
-  });
 });
 
 module.exports = router;
