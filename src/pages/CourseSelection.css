@@ -1,0 +1,29 @@
+/* src/pages/CourseSelection.css */
+.course-selection-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  height: 100%;
+}
+
+.course-selection-container h1 {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  color: #eaf0f2;
+}
+
+.course-selection-container p {
+  font-size: 1.2rem;
+  margin-bottom: 3rem;
+  color: #b0bec5;
+}
+
+.selection-buttons {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}

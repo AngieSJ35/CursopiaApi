@@ -1,0 +1,112 @@
+/* src/pages/AuthPage.css */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 4rem 0; 
+}
+.auth-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4rem;
+  width: 100%;
+  background-color: #1a2428;
+  border-top: 1px solid #2c3e45;
+  border-bottom: 1px solid #2c3e45;
+  padding: 2rem;
+  min-height: calc(100vh - 200px);
+}
+.auth-form-content {
+  flex-basis: 450px;
+  max-width: 450px;
+}
+.auth-form-content h1 {
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+.input-field {
+  margin-bottom: 1.5rem;
+}
+.input-field label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #b0bec5;
+}
+.input-field input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background-color: #dce6e9;
+  border: 1px solid #b0bec5;
+  border-radius: 25px;
+  font-size: 1rem;
+  color: #1c2b33;
+}
+.form-notice {
+  font-size: 0.8rem;
+  color: #b0bec5;
+  margin-bottom: 2rem;
+}
+.auth-error-message {
+  color: #ff8a80;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+.auth-btn {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1.1rem;
+  border-radius: 25px;
+  font-weight: bold;
+}
+.auth-image-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+.image-book {
+  width: 200px;
+  height: 200px;
+  background-image: url('/src/assets/Libro.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.image-caption {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #eaf0f2;
+}
+.forgot-password-container {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+.forgot-password-link {
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.forgot-password-link:hover {
+  color: #5c9eff;
+}
+@media (max-width: 768px) {
+  .auth-box {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  .auth-image-section {
+    display: none;
+  }
+  .auth-form-content {
+    flex-basis: 100%;
+  }
+}

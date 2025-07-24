@@ -1,0 +1,174 @@
+.course-step-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+.step-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #eaf0f2;
+}
+
+.step-content {
+  display: flex;
+  gap: 3rem;
+  padding: 2rem;
+  background-color: #1a2428;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.topic-column {
+  flex: 1;
+  min-width: 300px;
+}
+
+.topic-column h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #b0bec5;
+}
+
+.topic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.topic-box {
+  padding: 1.5rem;
+  border-radius: 10px;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: white;
+  text-align: center;
+}
+
+.topic-box.grammar { background-color: #5c9eff; }
+.topic-box.vocabulary { background-color: #e5b878; color: #1c2b33; }
+
+.step-action-button-container {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+    
+.step-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #1a2428;
+  border-radius: 15px;
+}
+
+.step-navigation span {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.nav-arrow {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.nav-arrow.disabled {
+  pointer-events: none;
+  opacity: 0.3;
+}
+/* src/pages/AuthPage.css */
+
+/* ... (todos tus estilos anteriores) ... */
+
+/* --- Estilos para la Política de Privacidad --- */
+.privacy-policy-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.privacy-policy-container label {
+  font-size: 0.9rem;
+  color: #b0bec5;
+}
+
+.policy-link {
+  color: #72b6ba; /* Color principal para destacar */
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.policy-link:hover {
+  color: #a3e0e4;
+}
+
+/* --- Estilos para el Botón Deshabilitado --- */
+.auth-btn:disabled {
+  background-color: #5a6a70;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* --- Estilos para el Popup/Overlay --- */
+.policy-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Para que aparezca por encima de todo */
+}
+
+.policy-content {
+  background-color: #1a2428;
+  padding: 2rem 3rem;
+  border-radius: 15px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto; /* Permite scroll si el contenido es muy largo */
+}
+
+.policy-content h2 {
+  margin-bottom: 1.5rem;
+  color: #eaf0f2;
+}
+
+.policy-content p, .policy-content strong {
+  text-align: left;
+  line-height: 1.8;
+  color: #b0bec5;
+  margin-bottom: 1rem;
+}
+
+.policy-content strong {
+  display: block;
+  color: #eaf0f2;
+}
+
+.policy-content button {
+  margin-top: 1.5rem;
+}
+
+.step-action-button-container {
+  text-align: center;
+  margin-bottom: 4rem;
+  /* Nuevos estilos para alinear los botones */
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}

@@ -1,0 +1,52 @@
+/* src/components/TalkbackToggle.css */
+.talkback-toggle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #1a2428;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+}
+
+.talkback-toggle label {
+  font-size: 1rem;
+  color: #eaf0f2;
+  cursor: pointer;
+}
+
+.switch-btn {
+  position: relative;
+  width: 50px;
+  height: 26px;
+  border-radius: 13px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.switch-btn.off { 
+  background-color: #5a6a70; 
+}
+
+.switch-btn.on { 
+  background-color: #72b6ba; 
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 0; /* Añadimos 'left' para un posicionamiento más consistente */
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.switch-btn.off .switch-thumb { 
+  transform: translateX(4px); 
+}
+
+.switch-btn.on .switch-thumb { 
+  transform: translateX(26px); 
+}
