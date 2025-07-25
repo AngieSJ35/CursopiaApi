@@ -54,7 +54,9 @@ model Usuario {
   nombre_completo  String
   email            String               @unique
   contrasena_hash  String
-  id_rol           Int
+  nombre           String?              // Campo adicional para compatibilidad
+  password         String?              // Campo temporal para auth
+  id_rol           Int                  @default(1)
   fecha_creacion   DateTime             @default(now())
   rol              Rol                  @relation(fields: [id_rol], references: [id], onDelete: Restrict)
   cursos           Curso[]              @relation("InstructorCursos")

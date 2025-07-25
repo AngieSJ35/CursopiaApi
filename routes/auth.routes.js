@@ -1,12 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const prisma = require('../prisma/client.js');
+const { authenticateToken } = require('../middleware/auth');
 
 // 🚀 Registro de usuario
 router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, nombre, email, password } = req.body;
+  const userName = name || nombre; // Aceptar ambos campos
 
-  if (!name || !email || !password) {
+  if (!userName || !email || !password) {
     return res.status(400).json({ error: 'Todos los campos son obligatorios' });
   }
 
@@ -20,25 +24,39 @@ router.post('/register', async (req, res) => {
       return res.status(409).json({ error: 'El correo ya está registrado' });
     }
 
+    // Hashear la contraseña
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     // Crear nuevo usuario
     const nuevoUsuario = await prisma.usuario.create({
       data: {
-        nombre: name,
+        nombre_completo: userName,
+        nombre: userName,
         email,
-        password
+        contrasena_hash: hashedPassword,
+        password: hashedPassword, // Campo temporal para compatibilidad
+        id_rol: 1 // Rol de estudiante por defecto
       }
     });
 
-    const { password: _, ...userSinPassword } = nuevoUsuario;
+    // Generar token JWT
+    const token = jwt.sign(
+      { userId: nuevoUsuario.id, email: nuevoUsuario.email },
+      process.env.JWT_SECRET || 'tu_clave_secreta_jwt_2024',
+      { expiresIn: '24h' }
+    );
+
+    const { contrasena_hash, password: _, ...userSinPassword } = nuevoUsuario;
 
     res.status(201).json({
-      mensaje: 'Usuario registrado exitosamente',
-      usuario: userSinPassword,
-      token: 'token_simulado_1234'
+      message: 'Usuario registrado exitosamente',
+      user: userSinPassword,
+      token
     });
 
   } catch (err) {
-    console.error(err);
+    console.error('Error en registro:', err);
     res.status(500).json({ error: 'Error en el servidor' });
   }
 });
@@ -46,31 +64,66 @@ router.post('/register', async (req, res) => {
 // 🚀 Login de usuario
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-console.log(req.body)
+
   if (!email || !password) {
-    return res.status(400).json({ error: 'Faltan campos' });
+    return res.status(400).json({ error: 'Email y contraseña son requeridos' });
   }
 
   try {
     const usuario = await prisma.usuario.findUnique({
-      where: { email }
+      where: { email },
+      include: {
+        rol: {
+          select: {
+            nombre: true
+          }
+        }
+      }
     });
 
-   // if (!usuario || usuario.password !== password) {
-  //  return res.status(401).json({ error: 'Credenciales inválidas' });
-   // }
+    if (!usuario) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
 
-    const { password: _, ...userSinPassword } = usuario;
+    // Verificar contraseña
+    const passwordValida = await bcrypt.compare(password, usuario.contrasena_hash || usuario.password);
+
+    if (!passwordValida) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+
+    // Generar token JWT
+    const token = jwt.sign(
+      { userId: usuario.id, email: usuario.email },
+      process.env.JWT_SECRET || 'tu_clave_secreta_jwt_2024',
+      { expiresIn: '24h' }
+    );
+
+    const { contrasena_hash, password: _, ...userSinPassword } = usuario;
 
     res.json({
-      ...userSinPassword,
-      token: 'token_simulado_1234'
+      message: 'Login exitoso',
+      user: userSinPassword,
+      token
     });
 
   } catch (err) {
-    console.error(err);
+    console.error('Error en login:', err);
     res.status(500).json({ error: 'Error al iniciar sesión' });
   }
+});
+
+// 🚀 Verificar token
+router.get('/verify', authenticateToken, (req, res) => {
+  res.json({
+    valido: true,
+    usuario: req.user
+  });
+});
+
+// 🚀 Logout (opcional, principalmente para el frontend)
+router.post('/logout', (req, res) => {
+  res.json({ mensaje: 'Logout exitoso' });
 });
 
 module.exports = router;
